@@ -90,6 +90,39 @@ public class TestRestful {
         assertEquals("SKY-655 cancelled<br>",result);
     }
     
+    @Test
+    public void testB() {
+        CreateItinery();
+        AddFlight("PLO-367");
+        AddFlight("AHD-856");
+        AddHotel("750-4");
+        //Ask for the itinery with getItinery
+        Client client = Client.create();
+        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinery");
+        Builder builder = r.getRequestBuilder();
+        for (NewCookie cookie : cookies) {
+            builder.cookie(cookie);
+        }
+        String result = builder.get(String.class);
+        assertEquals("The following flights has been planned:<br>"
+                + "Booking number: PLO-367 Booking status: UNCONFIRMED<br>"
+                + "Booking number: AHD-856 Booking status: UNCONFIRMED<br>"
+                + "<br>The following hotels has been planned:<br>"
+                + "Booking number: 750-4 Booking status: UNCONFIRMED<br>",result);
+        // Book the flights and hotels with book
+        client = Client.create();
+        r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/book?name=Tick%20Joachim&number=50408824&month=2&year=11");
+        builder = r.getRequestBuilder();
+        for (NewCookie cookie : cookies) {
+            builder.cookie(cookie);
+        }
+        result = builder.post(String.class);
+        assertEquals(
+                "PLO-367 has been CONFIRMED<br>"
+                + "AHD-856 has been CONFIRMED<br>"
+                + "750-4 has been CONFIRMED<br>",result);
+    }
+    
     
     
     static List<NewCookie> cookies = new ArrayList<NewCookie>();
