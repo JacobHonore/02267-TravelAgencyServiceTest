@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 public class TestRestful {
     @Test
     public void testP1() {
-        CreateItinery();
+        CreateItinerary();
         GetFlights();
         AddFlight("SKY-654");
         GetHotels();
@@ -28,9 +28,9 @@ public class TestRestful {
         AddFlight("SKY-655");
         AddFlight("SKY-656");
         AddHotel("3850-2");
-        //Ask for the itinery with getItinery
+        //Ask for the itinerary with getItinerary
         Client client = Client.create();
-        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinery");
+        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinerary");
         Builder builder = r.getRequestBuilder();
         for (NewCookie cookie : cookies) {
             builder.cookie(cookie);
@@ -58,9 +58,9 @@ public class TestRestful {
                 + "211500-1 has been CONFIRMED<br>"
                 + "3850-2 has been CONFIRMED<br>",result);
         
-        //Ask for the itinery with getItinery
+        //Ask for the itinerary with getItinerary
         client = Client.create();
-        r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinery");
+        r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinerary");
         builder = r.getRequestBuilder();
         for (NewCookie cookie : cookies) {
             builder.cookie(cookie);
@@ -76,12 +76,12 @@ public class TestRestful {
     }
     @Test
     public void testP2() {
-        CreateItinery();
+        CreateItinerary();
         GetFlights();
         AddFlight("SKY-655");
-        //Cancel the itinery with cancelItinery
+        //Cancel the itinerary with cancelItinerary
         Client client = Client.create();
-        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/cancelItinery");
+        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/cancelItinerary");
         Builder builder = r.getRequestBuilder();
         for (NewCookie cookie : cookies) {
             builder.cookie(cookie);
@@ -92,13 +92,13 @@ public class TestRestful {
     
     @Test
     public void testB() {
-        CreateItinery();
+        CreateItinerary();
         AddFlight("PLO-367");
         AddFlight("AHD-856");
         AddHotel("750-4");
-        //Ask for the itinery with getItinery
+        //Ask for the itinerary with getItinerary
         Client client = Client.create();
-        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinery");
+        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinerary");
         Builder builder = r.getRequestBuilder();
         for (NewCookie cookie : cookies) {
             builder.cookie(cookie);
@@ -126,12 +126,12 @@ public class TestRestful {
     
     
     static List<NewCookie> cookies = new ArrayList<NewCookie>();
-    public void CreateItinery() {
+    public void CreateItinerary() {
         Client client = Client.create();
-        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/createItinery");
+        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/createItinerary");
         ClientResponse result = r.put(ClientResponse.class);
         cookies = result.getCookies();
-        assertEquals("New itinery created",result.getEntity(String.class));
+        assertEquals("New itinerary created",result.getEntity(String.class));
     }
     @Test
     public void SetCreditCardInfo() {
@@ -237,9 +237,9 @@ public class TestRestful {
 "</list>",result);
     }
     @Test
-    public void GetItinery() {
+    public void GetItinerary() {
         Client client = Client.create();
-        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinery");
+        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinerary");
         Builder builder = r.getRequestBuilder();
         for (NewCookie cookie : cookies) {
             builder.cookie(cookie);
@@ -248,9 +248,9 @@ public class TestRestful {
         assertEquals("The following flights has been booked: IKR-104 SKY-654 The following hotels has been booked: 211500-1 ",result);
     }
     @Test
-    public void CancelItinery() {
+    public void CancelItinerary() {
         Client client = Client.create();
-        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/cancelItinery");
+        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/cancelItinerary");
         Builder builder = r.getRequestBuilder();
         for (NewCookie cookie : cookies) {
             builder.cookie(cookie);
