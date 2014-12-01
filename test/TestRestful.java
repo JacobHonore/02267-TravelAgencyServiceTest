@@ -28,6 +28,7 @@ public class TestRestful {
         AddFlight("SKY-655");
         AddFlight("SKY-656");
         AddHotel("3850-2");
+        //Ask for the itinery with getItinery
         Client client = Client.create();
         WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinery");
         Builder builder = r.getRequestBuilder();
@@ -35,15 +36,59 @@ public class TestRestful {
             builder.cookie(cookie);
         }
         String result = builder.get(String.class);
-        assertEquals("The following flights has been booked:<br>"
+        assertEquals("The following flights has been planned:<br>"
                 + "Booking number: SKY-654 Booking status: UNCONFIRMED<br>"
                 + "Booking number: SKY-655 Booking status: UNCONFIRMED<br>"
                 + "Booking number: SKY-656 Booking status: UNCONFIRMED<br>"
-                + "<br>The following hotels has been booked:<br>"
+                + "<br>The following hotels has been planned:<br>"
                 + "Booking number: 211500-1 Booking status: UNCONFIRMED<br>"
                 + "Booking number: 3850-2 Booking status: UNCONFIRMED<br>",result);
+        // Book the flights and hotels with book
+        client = Client.create();
+        r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/book?name=Donovan%20Jasper&number=50408818&month=6&year=9");
+        builder = r.getRequestBuilder();
+        for (NewCookie cookie : cookies) {
+            builder.cookie(cookie);
+        }
+        result = builder.post(String.class);
+        assertEquals(
+                "SKY-654 has been CONFIRMED<br>"
+                + "SKY-655 has been CONFIRMED<br>"
+                + "SKY-656 has been CONFIRMED<br>"
+                + "211500-1 has been CONFIRMED<br>"
+                + "3850-2 has been CONFIRMED<br>",result);
+        
+        //Ask for the itinery with getItinery
+        client = Client.create();
+        r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinery");
+        builder = r.getRequestBuilder();
+        for (NewCookie cookie : cookies) {
+            builder.cookie(cookie);
+        }
+        result = builder.get(String.class);
+        assertEquals("The following flights has been planned:<br>"
+                + "Booking number: SKY-654 Booking status: CONFIRMED<br>"
+                + "Booking number: SKY-655 Booking status: CONFIRMED<br>"
+                + "Booking number: SKY-656 Booking status: CONFIRMED<br>"
+                + "<br>The following hotels has been planned:<br>"
+                + "Booking number: 211500-1 Booking status: CONFIRMED<br>"
+                + "Booking number: 3850-2 Booking status: CONFIRMED<br>",result);
     }
-    
+    @Test
+    public void testP2() {
+        CreateItinery();
+        GetFlights();
+        AddFlight("SKY-655");
+        //Cancel the itinery with cancelItinery
+        Client client = Client.create();
+        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/cancelItinery");
+        Builder builder = r.getRequestBuilder();
+        for (NewCookie cookie : cookies) {
+            builder.cookie(cookie);
+        }
+        String result = builder.delete(String.class);
+        assertEquals("SKY-655 cancelled<br>",result);
+    }
     
     
     
