@@ -17,9 +17,37 @@ import static org.junit.Assert.*;
  *
  * @author jacobhonore
  */
-public class TestTravelResource {
-    static List<NewCookie> cookies = new ArrayList<NewCookie>();
+public class TestRestful {
     @Test
+    public void testP1() {
+        CreateItinery();
+        GetFlights();
+        AddFlight("SKY-654");
+        GetHotels();
+        AddHotel("211500-1");
+        AddFlight("SKY-655");
+        AddFlight("SKY-656");
+        AddHotel("3850-2");
+        Client client = Client.create();
+        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinery");
+        Builder builder = r.getRequestBuilder();
+        for (NewCookie cookie : cookies) {
+            builder.cookie(cookie);
+        }
+        String result = builder.get(String.class);
+        assertEquals("The following flights has been booked:<br>"
+                + "Booking number: SKY-654 Booking status: UNCONFIRMED<br>"
+                + "Booking number: SKY-655 Booking status: UNCONFIRMED<br>"
+                + "Booking number: SKY-656 Booking status: UNCONFIRMED<br>"
+                + "<br>The following hotels has been booked:<br>"
+                + "Booking number: 211500-1 Booking status: UNCONFIRMED<br>"
+                + "Booking number: 3850-2 Booking status: UNCONFIRMED<br>",result);
+    }
+    
+    
+    
+    
+    static List<NewCookie> cookies = new ArrayList<NewCookie>();
     public void CreateItinery() {
         Client client = Client.create();
         WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/createItinery");
@@ -38,16 +66,16 @@ public class TestTravelResource {
         String result = builder.post(String.class);
         assertEquals("Creditcard information has been stored.",result);
     }
-    @Test
-    public void AddFlight1() {
+    
+    public void AddFlight(String bookingNumber) {
         Client client = Client.create();
-        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/addFlight?flightnumber=IKR-104");
+        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/addFlight?flightnumber="+bookingNumber);
         Builder builder = r.getRequestBuilder();
         for (NewCookie cookie : cookies) {
             builder.cookie(cookie);
         }
         String result = builder.post(String.class);
-        assertEquals("Flight has been booked and added to list of flights.",result);
+        assertEquals("Flight with booking number "+bookingNumber+" has been booked and added to list of flights with status UNCONFIRMED.",result);
     }
     @Test
     public void AddFlight2() {
@@ -60,18 +88,16 @@ public class TestTravelResource {
         String result = builder.post(String.class);
         assertEquals("Flight has been booked and added to list of flights.",result);
     }
-    @Test
-    public void AddHotel() {
+    public void AddHotel(String bookingNumber) {
         Client client = Client.create();
-        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/addHotel?hotelnumber=211500-1");
+        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/addHotel?hotelnumber="+bookingNumber);
         Builder builder = r.getRequestBuilder();
         for (NewCookie cookie : cookies) {
             builder.cookie(cookie);
         }
         String result = builder.post(String.class);
-        assertEquals("Hotel has been booked and added to list of hotels.",result);
+        assertEquals("Hotel with booking number "+bookingNumber+" has been booked and added to list of hotels with status UNCONFIRMED.",result);
     }
-    @Test
     public void GetHotels() {
         Client client = Client.create();
         WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getHotels?city=Sacramento&arrivaldate=2014-08-03%2022:12&departuredate=2014-12-23%2012:47");
@@ -96,7 +122,7 @@ public class TestTravelResource {
 "  </hotelObjects.HotelBooking>\n" +
 "</list>",result);
     }
-    @Test
+    
     public void GetFlights() {
         Client client = Client.create();
         WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getFlights?startairport=Heathrow&destairport=Shanghai&liftoffdate=2014-02-23%2012:47");
