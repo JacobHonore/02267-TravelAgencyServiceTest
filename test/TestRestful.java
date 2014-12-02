@@ -50,7 +50,7 @@ public class TestRestful {
         for (NewCookie cookie : cookies) {
             builder.cookie(cookie);
         }
-        result = builder.post(String.class);
+        result = builder.put(String.class);
         assertEquals(
                 "SKY-654 has been CONFIRMED<br>"
                 + "SKY-655 has been CONFIRMED<br>"
@@ -116,35 +116,66 @@ public class TestRestful {
         for (NewCookie cookie : cookies) {
             builder.cookie(cookie);
         }
-        result = builder.post(String.class);
+        result = builder.put(String.class);
         assertEquals(
                 "PLO-367 has been CONFIRMED<br>"
                 + "AHD-856 has been CONFIRMED<br>"
                 + "750-4 has been CONFIRMED<br>",result);
     }
     
-    
+    @Test
+    public void testC1() {
+        CreateItinerary();
+        AddFlight("PLO-367");
+        AddFlight("AHD-856");
+        AddHotel("750-4");
+        // Book the flights and hotels with book
+        Client client = Client.create();
+        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/book?name=Donovan%20Jasper&number=50408818&month=6&year=9");
+        Builder builder = r.getRequestBuilder();
+        for (NewCookie cookie : cookies) {
+            builder.cookie(cookie);
+        }
+        String result = builder.put(String.class);
+        assertEquals(
+                "PLO-367 has been CONFIRMED<br>"
+                + "AHD-856 has been CONFIRMED<br>"
+                + "750-4 has been CONFIRMED<br>",result);
+        // Cancel the booking
+        client = Client.create();
+        r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/cancelItinerary");
+        builder = r.getRequestBuilder();
+        for (NewCookie cookie : cookies) {
+            builder.cookie(cookie);
+        }
+        builder.delete(String.class);
+        // Get the itinerary
+        client = Client.create();
+        r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinerary");
+        builder = r.getRequestBuilder();
+        for (NewCookie cookie : cookies) {
+            builder.cookie(cookie);
+        }
+        result = builder.get(String.class);
+        assertEquals("The following flights has been planned:<br>"
+                + "Booking number: PLO-367 Booking status: CANCELLED<br>"
+                + "Booking number: AHD-856 Booking status: CANCELLED<br>"
+                + "<br>The following hotels has been planned:<br>"
+                + "Booking number: 750-4 Booking status: CANCELLED<br>",result);
+    }
+    @Test // Not implemented because it would fail.
+    public void testC2() {
+        assertEquals("This","Is a failing test");
+    }
     
     static List<NewCookie> cookies = new ArrayList<NewCookie>();
     public void CreateItinerary() {
         Client client = Client.create();
         WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/createItinerary");
-        ClientResponse result = r.put(ClientResponse.class);
+        ClientResponse result = r.post(ClientResponse.class);
         cookies = result.getCookies();
         assertEquals("New itinerary created",result.getEntity(String.class));
     }
-    @Test
-    public void SetCreditCardInfo() {
-        Client client = Client.create();
-        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/setCreditCardInfo?name=Donovan%20Jasper&number=50408818&month=6&year=9");
-        Builder builder = r.getRequestBuilder();
-        for (NewCookie cookie : cookies) {
-            builder.cookie(cookie);
-        }
-        String result = builder.post(String.class);
-        assertEquals("Creditcard information has been stored.",result);
-    }
-    
     public void AddFlight(String bookingNumber) {
         Client client = Client.create();
         WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/addFlight?flightnumber="+bookingNumber);
@@ -152,19 +183,8 @@ public class TestRestful {
         for (NewCookie cookie : cookies) {
             builder.cookie(cookie);
         }
-        String result = builder.post(String.class);
+        String result = builder.put(String.class);
         assertEquals("Flight with booking number "+bookingNumber+" has been booked and added to list of flights with status UNCONFIRMED.",result);
-    }
-    @Test
-    public void AddFlight2() {
-        Client client = Client.create();
-        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/addFlight?flightnumber=SKY-654");
-        Builder builder = r.getRequestBuilder();
-        for (NewCookie cookie : cookies) {
-            builder.cookie(cookie);
-        }
-        String result = builder.post(String.class);
-        assertEquals("Flight has been booked and added to list of flights.",result);
     }
     public void AddHotel(String bookingNumber) {
         Client client = Client.create();
@@ -173,7 +193,7 @@ public class TestRestful {
         for (NewCookie cookie : cookies) {
             builder.cookie(cookie);
         }
-        String result = builder.post(String.class);
+        String result = builder.put(String.class);
         assertEquals("Hotel with booking number "+bookingNumber+" has been booked and added to list of hotels with status UNCONFIRMED.",result);
     }
     public void GetHotels() {
@@ -235,27 +255,5 @@ public class TestRestful {
 "    <price>3750</price>\n" +
 "  </flightObjects.FlightListData>\n" +
 "</list>",result);
-    }
-    @Test
-    public void GetItinerary() {
-        Client client = Client.create();
-        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/getItinerary");
-        Builder builder = r.getRequestBuilder();
-        for (NewCookie cookie : cookies) {
-            builder.cookie(cookie);
-        }
-        String result = builder.get(String.class);
-        assertEquals("The following flights has been booked: IKR-104 SKY-654 The following hotels has been booked: 211500-1 ",result);
-    }
-    @Test
-    public void CancelItinerary() {
-        Client client = Client.create();
-        WebResource r = client.resource("http://localhost:8080/TravelAgencyService/webresources/travel/cancelItinerary");
-        Builder builder = r.getRequestBuilder();
-        for (NewCookie cookie : cookies) {
-            builder.cookie(cookie);
-        }
-        String result = builder.delete(String.class);
-        assertEquals("IKR-104 cancelled SKY-654 cancelled 211500-1 cancelled ",result);
     }
 }
